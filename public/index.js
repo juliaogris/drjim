@@ -10,6 +10,12 @@ import {
   signInWithPopup,
   signOut
 } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js'
+import {
+  connectStorageEmulator,
+  getStorage,
+  ref,
+  uploadString
+} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js'
 
 const provider = new GoogleAuthProvider()
 const firebaseApp = initializeApp({
@@ -26,7 +32,9 @@ function showLoginScreen() {
   appScreen.style.display = 'none'
 }
 
+let currentUser = null
 function showApp(user) {
+  currentUser = user
   showUser(user)
   hideError()
   loginScreen.style.display = 'none'
@@ -79,17 +87,32 @@ async function loginGoogle() {
 }
 
 async function logout() {
+  currentUser = null
   await signOut(auth)
 }
 
+async function uploadFile() {
+  const storage = getStorage(firebaseApp)
+  const storageRef = ref(storage, `user/${currentUser.uid}/test.txt`)
+  const content = `Hello, World! by ${currentUser.email} on ${new Date().toISOString()}`
+  await uploadString(storageRef, content)
+  alert('File uploaded')
+}
+
+// login screen buttons
 loginButton.addEventListener('click', loginEmailPassword)
 loginGoogleButton.addEventListener('click', loginGoogle)
 signupButton.addEventListener('click', createAccount)
+
+// app screen buttons
 logoutButton.addEventListener('click', logout)
+uploadButton.addEventListener('click', uploadFile)
 
 const auth = getAuth(firebaseApp)
-if (window.location.host.startsWith('localhost')) {
+if (location.host.startsWith('localhost')) {
+  const storage = getStorage(firebaseApp)
   connectAuthEmulator(auth, 'http://localhost:9099')
+  connectStorageEmulator(storage, '127.0.0.1', 9199)
 }
 
 onAuthStateChanged(auth, (user) => {
