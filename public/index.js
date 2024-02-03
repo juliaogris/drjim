@@ -4,11 +4,14 @@ import {
   connectAuthEmulator,
   createUserWithEmailAndPassword,
   getAuth,
+  GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut
 } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js'
 
+const provider = new GoogleAuthProvider()
 const firebaseApp = initializeApp({
   apiKey: 'AIzaSyDxruYgyEFrUsC0Q4XCiYpX9HaDonL-Pos',
   authDomain: 'drjim-eaf50.firebaseapp.com',
@@ -66,11 +69,21 @@ async function createAccount() {
   }
 }
 
+async function loginGoogle() {
+  try {
+    await signInWithPopup(auth, provider)
+  } catch (error) {
+    console.log(`There was an error: ${error}`)
+    showError(error)
+  }
+}
+
 async function logout() {
   await signOut(auth)
 }
 
 loginButton.addEventListener('click', loginEmailPassword)
+loginGoogleButton.addEventListener('click', loginGoogle)
 signupButton.addEventListener('click', createAccount)
 logoutButton.addEventListener('click', logout)
 
