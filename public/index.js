@@ -17,6 +17,15 @@ import {
   uploadString
 } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js'
 
+import {
+  connectFirestoreEmulator,
+  getFirestore,
+  collection,
+  getDocs,
+  setDoc,
+  doc
+} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js'
+
 const provider = new GoogleAuthProvider()
 const firebaseApp = initializeApp({
   apiKey: 'AIzaSyDxruYgyEFrUsC0Q4XCiYpX9HaDonL-Pos',
@@ -55,8 +64,15 @@ function showError(error) {
   }
 }
 
-function showUser(user) {
-  authState.innerHTML = `You're logged in as ${user.email} (uid: ${user.uid}) `
+async function showUser(user) {
+  const token = await user.getIdToken()
+  const msg = [
+    "You're logged in as",
+    `email: ${user.email}`,
+    `uid: ${user.uid}`,
+    `idToken: ${token}`
+  ]
+  authState.innerHTML = msg.join('<br>')
 }
 
 async function loginEmailPassword() {
@@ -91,12 +107,21 @@ async function logout() {
   await signOut(auth)
 }
 
-async function uploadFile() {
+async function uploadToStorage() {
   const storage = getStorage(firebaseApp)
   const storageRef = ref(storage, `user/${currentUser.uid}/test.txt`)
-  const content = `Hello, World! by ${currentUser.email} on ${new Date().toISOString()}`
+  const now = new Date().toISOString()
+  const content = `🛢️ Hello, Storage World! by ${currentUser.email} at ${now}`
   await uploadString(storageRef, content)
-  alert('File uploaded')
+  alert(`Uploaded "${content}" to Storage`)
+}
+
+async function uploadToFirestore() {
+  const db = getFirestore(firebaseApp)
+  const now = new Date().toISOString()
+  const content = `🔥 Hello, Firestore World! by ${currentUser.email} at ${now}`
+  await setDoc(doc(db, 'users', currentUser.uid), { content })
+  alert(`Uploaded "${content}" to Firestore`)
 }
 
 // login screen buttons
@@ -106,13 +131,17 @@ signupButton.addEventListener('click', createAccount)
 
 // app screen buttons
 logoutButton.addEventListener('click', logout)
-uploadButton.addEventListener('click', uploadFile)
+uploadStorageButton.addEventListener('click', uploadToStorage)
+uploadFirestoreButton.addEventListener('click', uploadToFirestore)
 
 const auth = getAuth(firebaseApp)
-if (location.host.startsWith('localhost')) {
+if (location.host.startsWith('localhost') || location.host.startsWith('127.0.0.1')) {
+  console.log('connecting to emulators')
   const storage = getStorage(firebaseApp)
-  connectAuthEmulator(auth, 'http://localhost:9099')
-  connectStorageEmulator(storage, '127.0.0.1', 9199)
+  const db = getFirestore(firebaseApp)
+  connectAuthEmulator(auth, 'http://localhost:9001')
+  connectStorageEmulator(storage, '127.0.0.1', 9002)
+  connectFirestoreEmulator(db, '127.0.0.1', 9003)
 }
 
 onAuthStateChanged(auth, (user) => {

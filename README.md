@@ -6,13 +6,9 @@ Bare minimum for firebase email/password auth without Node.
 
 In first terminal start firebase emulator with
 
-     firebase emulators:start
+    firebase emulators:start
 
-In a second terminal start the static web server with
-
-    servedir -p 8080 public
-
-View this demo at http://localhost:8080 and the firebase emulator admin UI
+View this demo at http://localhost:9000 and the firebase emulator admin UI
 at http://localhost:4000/auth.
 
 ## Deploy
