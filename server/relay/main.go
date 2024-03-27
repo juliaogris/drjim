@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/firestore", firestoreHandler)
+	http.HandleFunc("POST /firestore", firestoreHandler)
 	http.HandleFunc("/", indexHandler)
 	fmt.Println("starting server on http://localhost:8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
@@ -24,10 +24,6 @@ type reqPayload struct {
 }
 
 func firestoreHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
 	dec := json.NewDecoder(r.Body)
 	payload := reqPayload{}
 	if err := dec.Decode(&payload); err != nil {
