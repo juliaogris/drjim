@@ -1,0 +1,63 @@
+<html>
+  <head>
+    <title>Access Firestore 🔥</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-color);
+        background: var(--background-color);
+      }
+      label {
+        display: inline-block;
+        width: 5em;
+      }
+      p,
+      button {
+        margin: 0 0 16px;
+      }
+    </style>
+    <script type="module">
+      document.querySelector('#firestoreSender').addEventListener('click', accessFirestore)
+      console.log('executing script', document.querySelector('#firestoreSender'))
+      async function accessFirestore() {
+        console.log('accessFirestore')
+        const UserID = document.querySelector('#UserID').value
+        const Token = document.querySelector('#Token').value
+        const payload = JSON.stringify({ UserID, Token })
+        const headers = { 'Content-Type': 'application/json' }
+        const request = { method: 'POST', body: payload, headers: headers }
+
+        console.log(`Sending request with payload '${payload}' to /firestore`)
+        try {
+          const response = await fetch('/firestore', request)
+          const text = await response.text()
+          document.querySelector('#firestoreResponse').textContent = text
+        } catch (error) {
+          console.error('Error:', error)
+          document.querySelector('#firestoreResponse').textContent = error
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Access Firestore 🔥</h1>
+    <p>
+      <label>UserID:</label>
+      <input type="text" id="UserID" />
+    </p>
+    <p>
+      <label>Token:</label>
+      <input type="text" id="Token" />
+    </p>
+    <button id="firestoreSender">Send to Firestore</button>
+    <div id="firestoreResponse"></div>
+  </body>
+</html>
